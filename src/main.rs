@@ -1,7 +1,7 @@
 use colored::*;
-use reqwest::Response;
+use dotenv::dotenv;
 use serde::Deserialize;
-use std::{fmt::format, io};
+use std::{env, io};
 
 #[derive(Deserialize, Debug)]
 struct WeatherResponse {
@@ -31,7 +31,7 @@ struct Wind {
 fn get_weather_info(
     city: &str,
     country_code: &str,
-    api_key: &str,
+    api_key: String,
 ) -> Result<WeatherResponse, reqwest::Error> {
     let url = format!(
         "https://api.openweathermap.org/data/2.5/weather?q={},{}&units=metric&appid={}",
@@ -94,6 +94,8 @@ fn display_weather_info(response: &WeatherResponse) {
 }
 
 fn main() {
+    dotenv().ok();
+
     println!("{}", "Welcome to the Weather Station!".bright_yellow());
     loop {
         println!("{}", "Please enter the name of the city:".bright_green());
@@ -113,7 +115,7 @@ fn main() {
             .expect("Failed to read input!");
         let country = country.trim();
 
-        let api_key = "test";
+        let api_key = env::var("API_KEY").expect("API Key Not Provided!");
 
         match get_weather_info(city, country, api_key) {
             Ok(response) => {
